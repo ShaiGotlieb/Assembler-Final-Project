@@ -6,6 +6,7 @@ typedef enum boolean = {NO, YES};
 typedef struct commands
 {
     char* opCode;
+    char* lableName;
     int numOfOperands;
     int srcOp;
     int destOp;
@@ -19,6 +20,13 @@ typedef struct symbolTable
     boolean ext;
     boolean act;
 }symbolTable;
+
+typedef struct instructions
+{
+    char* instr;
+    char* data;
+    char* lableName;
+}instructions;
 
 char* r0, r1, r2, r3, r4, r5, r6, r7;
 r0 = "0000";

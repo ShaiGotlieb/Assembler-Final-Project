@@ -6,6 +6,10 @@
 #define MAX_CMD 16
 #define BASE 4
 #define DECIMAL 10
+#define IMMEDIATE_ADRESS #00
+#define DIRECT_ADRESS #01
+#define MAT_ADRESS #10
+#define DIRECT_REG #11
 
 void createFileName(const char*, char);
 void firstRun(File*);
@@ -21,6 +25,7 @@ char* convert_base4(char*, char*);
 
 char* base4_str = ""; /* for converting decimal number to base 4 */
 char* wierdStr[BASE];
+char* adress_type_str = "";
 
 File* f;
 symboltable* symbolT = (symboltable*)malloc(sizeof(symboltable));
@@ -276,4 +281,129 @@ char* convert_wierd4(char* str)
     return wierdStr;
 
 }	
+
+/* cheack if a word is a valid register */
+int isRegister(char* line)
+{
+	if((line[0] == 'r') && (line[1] >= 0) && (line[1] <= 7))
+		return 1; /* success */
+	else
+		return 0; /* not valid register - print error outside of the function */
+}
+
+int isComment(char* line)
+{
+	if(line[0] == ';') 
+		return 1; /* it is a comment */
+		else
+			return 0;
+}
+
+int isEmpty(char* line)
+{
+	char *ptr;
+
+	for(ptr = line; *ptr != '\n' && *ptr != '\0'; ptr++) 
+	{
+		if (!isBlank(*ptr)) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+int isBlank(char* line)
+{
+	if( line[0] == ' ' || line[0] == '\t')
+		return 1;
+	else 
+		return 0
+}
+
+int countSpaces(char* line) {
+	int i = 0, c;
+	while(isspace((c = line[i]))) {
+		if (c == '\n' || c == EOF)
+			return i;
+		i++;
+	}
+	return i;
+}
+
+#define IMMEDIATE_ADRESS #00
+#define DIRECT_ADRESS #01
+#define MART_ADRESS #10
+#define DIRECT_REG #11
+
+char* adress_type(char* tempWord) 
+{
+	char *ptr;
+	static int matFlag = 0
+	if(strstr(tempWord, ".mat"))
+		matFlag = 1;
+	if((tempWord[0] == '#') && ((tempWord[1] == '+') || (tempWord[1] == '-') || (isdigit(tempWord[1] != 0))))
+	{
+		adress_type_str = IMMEDIATE_ADRESS
+		return adress_type_str;
+	}
+	else{
+		printf("ERROR! Invalid use of operand '#'. missing a llegal number\n");
+		return NULL;
+	}
+	else if((isalpha(tempWord[0] != 0)) && (tempWord[1] == '[') && ((tempWord[2] == 'r') && (tempWord[3] >= '0') && (tempWord[3] <= '7') && (tempWord [4] == ']')))
+	{
+		if(tempWord[5] != '[')
+		{
+			printf("ERROR! Invalid use of matrix: missing next matrix after first one\n")
+			return NULL;
+		}
+		else
+			if(((tempWord[6] != 'r') || (!(tempWord[7] >= '0')) || (!(tempWord[7] <= '7')) || (!(tempWord [8] == ']')))
+			{
+				printf("ERROR! Invalid use of matrix: second matrix is Invalid!\n")
+				return NULL;
+		}
+	 
+	
+		adress_type_str = MAT_ADRESS;
+		return adress_type_str;
+		}
+	else if((strlen(tempWord) == 2) && (tempWord[0] == 'r') && (tempWord[1] >= '0') && (tempWord[1] <= '7'))
+	{
+		adress_type_str = DIRECT_REG;
+		return adress_type_str;
+	}
+	else if(!(ptr = strchr(tempWord, '[')))
+	{
+		adress_type_str = DIRECT_ADRESS;
+		return adress_type_str;
+	}
+	else if(strlen(ptr) > 0) {
+		p++;
+		if(strlen(tempWord) > 2) 
+		{
+			if(tempWord[0] == 'r' && word[1] >= '0' && word[1] <= '7')
+			 { /* check if its a leagal register name for instance: r75 is illegal*/
+				int x;
+				if((x = checkSpaces(tempWord + 2) != '\0')) {
+					printf("ERROR! Invalid register name!");
+					return NULL; 
+				}
+			}
+			if((tempWord[0] == '[') && (matFlag == 0)) 
+			{
+				printf("ERROR! Invalid use of matrix!\n");
+				return NULL;
+			}
+		}
+		if(!ptr || !strchr(word, ']')) {
+			printf("ERROR! Invalid use of matrix: missing close square bracket.\n");
+			return NULL;
+		}
+
+		
+	}
+}	
+
 

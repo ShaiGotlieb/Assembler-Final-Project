@@ -352,9 +352,15 @@ char* convert_wierd4(char* str)
  
 char* convertToBinary(char* inputNum)
 {
+    if(strstr(inputNum, '#') || strstr(inputNum, '-') || strstr(inputNum, '+'))
+    {
+        strtok(inputNum, '#');
+        strtok(inputNum, '-');
+        strtok(inputNum, '+');
+    }
     int num = atoi(inputNum);
     char* result[DECIMAL] = '\0';
-    int index = 9;
+    int index = 7;
     while(num > 0)
     {
         if(num % 2 != 0)
@@ -368,4 +374,65 @@ char* convertToBinary(char* inputNum)
         num /= 2;
     }
     return result;
+}
+
+int insertToCode(SplitLine p, int* r)
+{
+    int index = 0, type = 0, regFlag = 0, row = r, tmpR = 1;
+    char* temp, str;
+    SymbolTable* ptr;
+    char* tempArr[3];
+
+    temp = cmdToCode(p->opCode);
+    strcat(Code[i], temp);
+        
+    
+    
+        
+        while(row < MAX_MEMORY && p->vars[index] != NULL)
+        {
+            type = typeAdress(p, index);
+            switch(type)
+            {
+                case IMMEDIATE_ADRESS:   str = convertToBinary(p->vars[index]);
+                                         strcat(Code[row], "00");
+                                         strcat(Code[row+tmpR], str);   
+                                         index++;
+                                         tmpR++;
+                                         break;
+
+                case DIRECT_ADRESS:     strcat(Code[row], "01");
+                                        ptr = searchSymbol(symbList, p->label);
+                                        str = convertToBinary(ptr->addr);
+                                        strcat(Code[row+tmpR], str);
+                                        index++;
+                                        tmpR++;
+                                        break;
+                    
+                case MAT_ADRESS:        strcat(Code[row], "10");
+                                        tempArr = parseMat(p->vars[index]);/* malloc*/
+                                        ptr = searchSymbol(symbList, tempArr[0]);
+                                        temp = convertToBinary(ptr->addr, type);
+                                        strcat(Code[row+tmpR], temp);
+                                        tmpR++;
+                                        strcat(Code[row+tmpR], tempArr[1]);
+                                        strcat(Code[row+tmpR], tempArr[2]);
+                                        index++;
+                                        tmpR++;
+                                        break;
+
+                case REG_ADRESS:        strcat(Code[row], "11");
+                                        if(regFlag == 1)
+                                        {
+                                            tmpR--;
+                                            strcat(Code[row+tmpR], getRegister(p->vars[index]));
+                                        }
+                                        strcat(Code[row+tmpR], getRegister(p->vars[index]));
+                                        regFlag = 1;
+                                        index++;
+                                        tmpR++;
+                                        break;                        
+            }
+        }
+    
 }

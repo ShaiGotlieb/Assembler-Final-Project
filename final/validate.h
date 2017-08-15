@@ -7,6 +7,8 @@
 #define DIRECT_ADRESS 1
 #define MAT_ADRESS 2
 #define DIRECT_REG 3
+#define MAX_CMD 16
+#define MAX_OPERAND 3
  
  
 int typeAdress(splitLines*, int);

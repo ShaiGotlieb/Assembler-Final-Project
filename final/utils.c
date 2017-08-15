@@ -376,34 +376,38 @@ char* convertToBinary(char* inputNum)
     return result;
 }
 
-int insertToCode(SplitLine p, int* r)
+void insertToCode(SplitLine p, int* r)
 {
-    int index = 0, type = 0, regFlag = 0, row = r, tmpR = 1;
+    int index = 0, type = 0, regFlag = 0, NullFlag = 0, row = r, tmpR = 1;
     char* temp, str;
     SymbolTable* ptr;
     char* tempArr[3];
-
     temp = cmdToCode(p->opCode);
-    strcat(Code[i], temp);
-        
-    
-    
-        
+    strcat(Code[i], temp);     
         while(row < MAX_MEMORY && p->vars[index] != NULL)
         {
             type = typeAdress(p, index);
             switch(type)
             {
-                case IMMEDIATE_ADRESS:   str = convertToBinary(p->vars[index]);
+                case IMMEDIATE_ADRESS:   str = convertToBinary(p->vars[index], type);
                                          strcat(Code[row], "00");
-                                         strcat(Code[row+tmpR], str);   
+                                         strcat(Code[row+tmpR], str);
+                                         NumFlag = 1;   
                                          index++;
                                          tmpR++;
                                          break;
 
                 case DIRECT_ADRESS:     strcat(Code[row], "01");
                                         ptr = searchSymbol(symbList, p->label);
-                                        str = convertToBinary(ptr->addr);
+                                        if(ptr == NULL)
+                                        {
+                                            if(isRegister(p->vars[index])==1)
+                                            {
+                                                strcat(Code[row+tmpR], getRegister(p->vars[index]));/* dest register is in bytes 2-5*/
+                                                strcat(Code[row+tmpR], "0000");                     
+                                            }
+                                        }
+                                        str = convertToBinary(ptr->addr, type);
                                         strcat(Code[row+tmpR], str);
                                         index++;
                                         tmpR++;
@@ -415,24 +419,45 @@ int insertToCode(SplitLine p, int* r)
                                         temp = convertToBinary(ptr->addr, type);
                                         strcat(Code[row+tmpR], temp);
                                         tmpR++;
-                                        strcat(Code[row+tmpR], tempArr[1]);
-                                        strcat(Code[row+tmpR], tempArr[2]);
+                                        strcat(Code[row+tmpR], tempArr[2]);/* dest register is in bytes 2-5*/
+                                        strcat(Code[row+tmpR], tempArr[1]);/* source register is in bytes 6-9*/
                                         index++;
                                         tmpR++;
                                         break;
 
                 case REG_ADRESS:        strcat(Code[row], "11");
-                                        if(regFlag == 1)
+                                        if(NullFlag == 1)
                                         {
-                                            tmpR--;
                                             strcat(Code[row+tmpR], getRegister(p->vars[index]));
                                         }
-                                        strcat(Code[row+tmpR], getRegister(p->vars[index]));
+                                        else if(regFlag == 1)
+                                        {
+                                            tmpR--;
+                                            strcat(Code[row+tmpR], getRegister(p->vars[index]));/* dest register is in bytes 2-5*/
+                                            strcat(Code[row+tmpR], getRegister(p->vars[index-1]));/* source register is in bytes 6-9*/
+                                        }
+                                        if(NumFlag == 1)
+                                        {
+                                            strcat(Code[row+tmpR], getRegister(p->vars[index]));
+                                            strcat(Code[row+tmpR], "0000");
+                                        }
                                         regFlag = 1;
                                         index++;
                                         tmpR++;
-                                        break;                        
+                                        break; 
+
+                case NULL:              strcat(Code[row], "00");
+                                        NullFlag = 1;
+                                        if(regFlag == 1)
+                                        {
+                                           tmpR--;
+                                           strcat(Code[row+tmpR], "0000");
+                                           strcat(Code[row+tmpR], getRegister(p->vars[index]));
+                                        }  
+                                        index++;
+                                        tmpR++;                                               
             }
+            p = p->next;
         }
-    
+    r += tmpR;
 }

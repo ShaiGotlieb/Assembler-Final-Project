@@ -389,7 +389,7 @@ void insertToCode(SplitLine p, int* r)
             type = typeAdress(p, index);
             switch(type)
             {
-                case IMMEDIATE_ADRESS:   str = convertToBinary(p->vars[index], type);
+                case IMMEDIATE_ADRESS:   str = convertToBinary(p->vars[index], 0);
                                          strcat(Code[row], "00");
                                          strcat(Code[row+tmpR], str);
                                          NumFlag = 1;   
@@ -407,7 +407,7 @@ void insertToCode(SplitLine p, int* r)
                                                 strcat(Code[row+tmpR], "0000");                     
                                             }
                                         }
-                                        str = convertToBinary(ptr->addr, type);
+                                        str = convertToBinary(ptr->addr, 1);
                                         strcat(Code[row+tmpR], str);
                                         index++;
                                         tmpR++;
@@ -416,7 +416,7 @@ void insertToCode(SplitLine p, int* r)
                 case MAT_ADRESS:        strcat(Code[row], "10");
                                         tempArr = parseMat(p->vars[index]);/* malloc*/
                                         ptr = searchSymbol(symbList, tempArr[0]);
-                                        temp = convertToBinary(ptr->addr, type);
+                                        temp = convertToBinary(ptr->addr, 1);
                                         strcat(Code[row+tmpR], temp);
                                         tmpR++;
                                         strcat(Code[row+tmpR], tempArr[2]);/* dest register is in bytes 2-5*/
@@ -460,4 +460,23 @@ void insertToCode(SplitLine p, int* r)
             p = p->next;
         }
     r += tmpR;
+}
+
+char* cmdToCode(char* currcmd)
+{
+    char* cmdArr[MAX_CMD][MAX_CMD] = { {"mov"}, {"cmp"}, {"add"}, {"sub"}, {"not"}, {"clr"}, {"lea"}, {"inc"}, {"dec"}, {"jmp"}, {"bne"}, {"red"}, {"prn"}, {"jsr"}, {"rts"}, {"stop"},
+                             {"0000"}, {"0001"}, {"0010"}, {"0011"}, {"0100"}, {"0101"}, {"0110"}, {"0111"}, {"1000"}, {"1001"}, {"1010"}, {"1011"}, {"1100"}, {"1101"}, {"1110"}, 
+                             {"1111"} };
+
+    int i, j;
+    char* tempStr = "";
+    for(i=0, j=0; j < MAX_CMD; j++)
+    {                        
+     if(currcmd == cmdArr[i][j])
+     {
+      i += 1;
+      tempStr = strcat(tempStr, cmdArr[i][j]); /* concatenate the binary "base 4" number of the right command to a temporary string*/
+     }
+    }
+    return &tempStr;
 }

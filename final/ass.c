@@ -359,7 +359,7 @@ void readLine(SplitLine* data, const char* line){
                         break;
                     }
                     else{
-                        printf("The %s command have excesive arguments\n", mainOp);
+                        printf("The %s command have excesive arguments\n", data->opCode);
                         return;
                     }
                 break;
@@ -435,7 +435,7 @@ int validOperand(int op, char* tmp){
     }
 }
  
-void insertToDataT(char vars[], int index){
+void insertToDataT(char* vars[], int index){
     int i, j;
     int size;
  
@@ -498,7 +498,7 @@ return result;
 char* convert_wierd4(char* str)
 {
     int r, k = BASE;
-    char* temp;
+    char* temp, wierdStr ="";
     int num = atoi(str);
     int tempNum = num;
     while(tempNum > 0)
@@ -516,7 +516,7 @@ char* convert_wierd4(char* str)
     /* reverse the string*/
     for(r = 0; r < BASE; r++)
     {
-        temp = wierdStr[k];
+        temp = wierdStr[k];/* make it array with malloc??*/
         wierdStr[k] = wierdStr[r];
         wierdStr[r] = temp;
         k--;
@@ -530,7 +530,7 @@ void binaryToWierd4(char* source, char* tmp){
         if(source[i] == '0'){
             if(source[j] == '0'){
                 tmp[k] = 'a';
-                k++
+                k++;
                 continue;
             }
             else{
@@ -565,7 +565,7 @@ void cleanArr(char* arr, int size){
 char* convertToBinary(char* inputNum)
 {
     int num = atoi(inputNum);
-    char* result[DECIMAL] = '\0';
+    char* result[DECIMAL] = {'\0'};
     int index = 9;
     while(num > 0)
     {
@@ -597,7 +597,7 @@ int isEmpty(char* str){
  
 void insertToCode(SplitLine* p, int* r)
 {
-    int index = 0, type = 0, regFlag = 0, NullFlag = 0, row = r, tmpR = 1, s, savePlace;
+    int index = 0, type = 0, regFlag = 0, NullFlag = 0, NumFlag=0, row = r, tmpR = 1, s, savePlace;
     char* temp, str, binary = (char*)malloc(sizeof(char)*9);
     SymbolTable* ptr;
     char* tempArr[3];
@@ -630,7 +630,7 @@ void insertToCode(SplitLine* p, int* r)
                                                 strcat(Code[row+tmpR], "0000");                     
                                             }
                                         }
-                                        str = convertToBinary(ptr->addr, binary);
+                                        str = convertToBinary(atoi(ptr->addr));
                                         strcat(Code[row+tmpR], str);
                                         if(ptr->ext == 0){
                                             strcat(Code[row+tmpR], "10\0"); 
@@ -643,9 +643,9 @@ void insertToCode(SplitLine* p, int* r)
                                         break;
                      
                 case MAT_ADRESS:        strcat(Code[row], "10");
-                                        tempArr = parseMat(p->vars[index]);/* malloc*/
+                                        parseMat(p->vars[index]);/* malloc*/
                                         ptr = searchSymbol(symbList, tempArr[0]);
-                                        temp = convertToBinary(ptr->addr, 1);
+                                        temp = convertToBinary((char*)(ptr->addr));
                                         strcat(Code[row+tmpR], temp);
                                         tmpR++;
                                         strcat(Code[row+tmpR], tempArr[2]);/* dest register is in bytes 2-5*/
@@ -660,7 +660,7 @@ void insertToCode(SplitLine* p, int* r)
                                         tmpR++;
                                         break;
  
-                case REG_ADRESS:        strcat(Code[row], "11");
+                case DIRECT_REG:        strcat(Code[row], "11");
                                         if(NullFlag == 1)
                                         {
                                             strcat(Code[row+tmpR], getRegister(p->vars[index]));
@@ -685,7 +685,7 @@ void insertToCode(SplitLine* p, int* r)
                                         tmpR++;
                                         break; 
  
-                case NULL:              strcat(Code[row], "00");
+                 default:               strcat(Code[row], "00");
                                         NullFlag = 1;
                                         if(regFlag == 1)
                                         {
@@ -723,7 +723,7 @@ char* cmdToCode(char* currcmd)
  
 void parseMat(char* mat){
     int i, j, k;
-    char* arr[3] = "\0";
+    char* arr[3] = {"\0"};
     for(i = 0; i < strlen(mat); i++){
         if(mat[i] == '['){
             j++;
@@ -750,15 +750,15 @@ void parseMat(char* mat){
  
 /*-----validate.c----*/
  
-int typeAdress(splitLines* sl, int index)
+int typeAdress(SplitLine* sl, int index)
 {
-    if(isNumber(sl.vars[index]) != 0 ) 
+    if(isNumber(sl->vars[index]) != 0 ) 
         return IMMEDIATE_ADRESS;/*"00" */
-        if(isLetter(sl.vars[index]) != 0)
+        if(isLetter(sl->vars[index]) != 0)
         return DIRECT_ADRESS;/*"01" */
-            if (isMatrix(sl.vars[index]) != 0)
+            if (isMatrix(sl->vars[index]) != 0)
         return MAT_ADRESS; /*"10" */
-                if(isRegister(sl.vars[index]) != 0)
+                if(isRegister(sl->vars[index]) != 0)
         return DIRECT_REG;/* "11" */       
                     else return NULL;
 }
@@ -888,7 +888,7 @@ int isMatrix(char* word)
     {
         j = 0;
 /* sepperate the words after a llegal matrix in order to check the next word*/
-        breakMat();
+        breakMat(word);
  
         if(isRegister(tempStr) != 1)
         {
@@ -920,7 +920,7 @@ int isMatrix(char* word)
             }
             j = 0;
 /* sepperate the words after a llegal matrix in order to check the next word*/
-            breakMat();
+            breakMat(word);
  
             if(isCloseBracket(word[i]) == 1)
             {
@@ -1038,7 +1038,7 @@ int validateMatCommandObject(char* word)
     result = isMatrixInputValid(array[1], matrixSize);
     if ( result == 0)
     {
-// error with matrix elements input
+/*error with matrix elements input*/
         printf("ERROR! Invalid use of matrix. Invalid matrix element input.\n");
         return 0;
     }
@@ -1104,7 +1104,7 @@ int isCloseBracket(char c)
 }
  
 /* Function that breaks the words after a matrix*/
-void breakMat(void)
+void breakMat(char* word)
 {
     while(word[i] != ']' && i <= strlen(word))
     {
@@ -1224,7 +1224,7 @@ int validString(char* var)
     return 0;
 }
  
-int validEntry(char* word, Symblist* head)
+int validEntry(char* word, SymbolList* head)
 {
     if(isEmpty(word) == 1)
     {
@@ -1249,7 +1249,7 @@ int validEntry(char* word, Symblist* head)
     return 0;
 }
  
-int validExtern(char* word, Symblist* head)
+int validExtern(char* word, SymbolList* head)
 {
     if(isEmpty(word) == 1)
     {
@@ -1272,16 +1272,16 @@ int validExtern(char* word, Symblist* head)
     return 1;
 }
  
-int memorySize(splitLines* sl)
+int memorySize(SplitLine* sl)
 {   
     int regFlag = 0;
 /* check if it's one of the commands*/
-    if(sl.opCode > MAX_CMD)
+    if(sl->opCode > MAX_CMD)
     {
         return 0;
     }
     /* if it's empty*/
-    if(sl.opCode == NULL)
+    if(sl->opCode == NULL)
     {
         return 0;
     }
@@ -1290,15 +1290,15 @@ int memorySize(splitLines* sl)
         /* run through the array and increase L by the correct type adress*/
         for(i = 0; i < MAX_OPERAND; i++)
         {
-            if(typeAdress(sl.var[i]) == IMMEDIATE_ADRESS || typeAdress(sl.var[i]) == DIRECT_ADRESS || (isVar(sl.var[i]) == 1)) 
+            if(typeAdress(sl->vars[i], i) == IMMEDIATE_ADRESS || typeAdress(sl->vars[i], i) == DIRECT_ADRESS || (isVar(sl->vars[i]) == 1)) 
             {
                 L++;
             }
-            if(typeAdress(sl.var[i]) == MAT_ADRESS)
+            if(typeAdress(sl->vars[i], i) == MAT_ADRESS)
             {
                 L += 2;
             }
-            if(typeAdress(sl.var[i]) == DIRECT_REG)
+            if(typeAdress(sl->vars[i], i) == DIRECT_REG)
             {
                 if(regFlag == 0)
                 {
@@ -1330,6 +1330,7 @@ char* getRegister(char* r){
 int isVar(char* word)
 {
     int i = 0;
+    char c;
     while(i < strlen(word))
     {
         c = word[i];
@@ -1343,8 +1344,8 @@ int isVar(char* word)
 /*-----list.c-------*/
  
 SplitList* makeSplitList(){
-    SplitList lst;
-    lst.head = lst.tail = NULL;
+    SplitList* lst;
+    lst->head = lst->tail = NULL;
     return lst;
 }
  
@@ -1374,8 +1375,8 @@ void freeList(SplitList* list){
 }
  
 SymbolList* makeSymbolList(){
-    SymbolList lst;
-    lst.head = lst.tail = NULL;
+    SymbolList* lst;
+    lst->head = lst->tail = NULL;
     return lst;
 }
  

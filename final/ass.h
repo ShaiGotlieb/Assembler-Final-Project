@@ -72,7 +72,9 @@ char* address;
 char base4Code[6];
 char wierd4Code[6];
 char tmp[FOUR_BASE_SIZE];
- 
+const char* object; 
+const char* entry; 
+const char* extrn; 
 
 char* line;
 SplitList* sList;
@@ -81,7 +83,7 @@ SplitLine* p;
 SymbolList* symbList;
 SymbolTable* symbol;
 SymbolTable* sp;
-int L, index, r = 0;
+int L, indx, r = 0;
  
 
 enum states{START, SPACE, COMM_ZERO, COMM_ONE, COMM_TWO_A, COMM_TWO_B, INST_TWO, INST_EXTERN, LABEL, MAKE, END};
@@ -120,7 +122,6 @@ int isLetter(char);
 int isRegister(char*);
 int isMatrix(char*);
 int validLabel(char*);
-int isOpenBracket(char*);
 int isCloseBracket(char);
 void breakMat(char*);
 int isMatrixInputValid(char*, int);

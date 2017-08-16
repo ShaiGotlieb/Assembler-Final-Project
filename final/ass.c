@@ -42,7 +42,8 @@ int main(int argc, char* argv[]){
         secondRun(sList, fent, fext);
         for(j = 0; j < IC; j++){
 
-            convert_base4((mItoa((START_ADD + j), addBase4)));
+            mItoa((START_ADD + j), addBase4);
+            convert_base4(addBase4);
             address = convert_wierd4(addBase4);
             binaryToWierd4(Code[j], tmp);
             cleanArr(tmp, FOUR_BASE_SIZE);
@@ -151,7 +152,8 @@ void secondRun(const SplitList* sList, FILE* fent, FILE* fext){
         }
         else if(ind == ENTRY){
             sp = searchSymbol(symbList->head, p->label);
-            convert_base4(mItoa((sp->addr), addBase4));
+            mItoa((sp->addr), addBase4);
+            convert_base4(addBase4);
             address = convert_wierd4(addBase4);
             fprintf(fent, "\t%s\t%s\n", sp->label, address);
             p = p->next;
@@ -176,15 +178,15 @@ void secondRun(const SplitList* sList, FILE* fent, FILE* fext){
         }
     }
 }
+/*-----utils.c----*/
  
-/-----utils.c----/
- 
-void readLine(SplitLine* data, char* line){
+void readLine(SplitLine* data, const char* line){
     int size = strlen(line);
-    int i, j=0, indx, t=0;
+    int i, j=0, index, t=0;
     int status = SPACE;
     int mainStatus = START;
     int symbolflag = 0;
+    int secondVarFlag = 0;
     int commaflag = 0;
     char* temp = (char*)malloc(sizeof(char));
     if(mallocValid(temp)) return;
@@ -235,8 +237,8 @@ void readLine(SplitLine* data, char* line){
                             break;
                         }
                         else{
-                            indx = validOpCode(temp);
-                            switch(indx){
+                            index = validOpCode(temp);
+                            switch(index){
                                 case 0: printf("ERROR: invalid command\n");
                                 return;
                                 case 1: case 2:
@@ -289,7 +291,7 @@ void readLine(SplitLine* data, char* line){
  
  
                 case LABEL: 
-                    if(validOpCode(temp) != 0){ /shai code instead validOpCode/
+                    if(validOpCode(temp) != 0){ /*shai code instead validOpCode*/
                         printf("ERROR: invalid symbol name\n");
                         return;
                     }
@@ -380,22 +382,21 @@ int validOpCode(char* op){
     }
 }
  
-int validOperand(int op, SplitLine spl){
-    int ind;
-    static int secondVarFlag = 0;
-    ind = typeAdress(spl, );
+int validOperand(int op, char* tmp){
+    int index;
+    index = operkind(tmp);
     switch(op){
         case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 11:
-            if(ind == 1 || ind == 2 || ind == 3)
+            if(indx == 1 || indx == 2 || indx == 3)
                     return 1;
             return 0;
         case 10: case 13:
-            if(ind == 0 || ind == 1 || ind == 2 || ind == 3)
+            if(index == 0 || index == 1 || index == 2 || index == 3)
                 return 1;
             return 0;
         case 12: case 14: case 15:
             if(secondVarFlag == 0){
-                if(ind == 0 || ind == 1 || ind == 2 || ind == 3){
+                if(index == 0 || index == 1 || index == 2 || index == 3){
                     secondVarFlag = 1;
                     return 1;
                 }
@@ -404,7 +405,7 @@ int validOperand(int op, SplitLine spl){
                 }
             }
             else{
-                if(ind == 1 || ind == 2 || ind == 3){
+                if(index == 1 || index == 2 || index == 3){
                     secondVarFlag = 0;
                     return 1;
                 }
@@ -414,7 +415,7 @@ int validOperand(int op, SplitLine spl){
             }
         case 16:
             if(secondVarFlag == 0){
-                if(ind == 1 || ind == 2){
+                if(index == 1 || index == 2){
                     secondVarFlag = 1;
                     return 1;
                 }
@@ -423,7 +424,7 @@ int validOperand(int op, SplitLine spl){
                 }
             }
             else{
-                if(ind == 1 || ind == 2 || ind == 3){
+                if(index == 1 || index == 2 || index == 3){
                     secondVarFlag = 0;
                     return 1;
                 }
@@ -435,13 +436,13 @@ int validOperand(int op, SplitLine spl){
     }
 }
  
-void insertToDataT(char* vars[], int ind){
+void insertToDataT(char* vars[], int index){
     int i, j;
     int size;
  
-    switch(ind){
+    switch(index){
         case 17:
-            size = sizeof(*vars)/sizeof(*vars[0]);
+            size = sizeof(vars)/sizeof(vars[0]);
             for(i = DC, j = 0; i < MAX_MEMORY || j < size; i++, j++){
                 copyBinarStr(DataT[i], convertToBinary(vars[j]));
             }
@@ -477,41 +478,40 @@ void copyBinarStr(char* x, char* y){
  
 char* convert_base4(char* inputNum)
 {
-    int num = atoi(inputNum);
-    char* result[DECIMAL];
-    memset(result, '\0', sizeof(result));
-    int ind = 9;
-    while(num > 0)
+int num = atoi(inputNum);
+char* result[DECIMAL] = '\0';
+int index = 9;
+while(num > 0)
+{
+    if(num % BASE != 0)
     {
-        if(num % BASE != 0)
-        {
-            result[ind] = 1;
-        }
-        else{
-            result[ind] = 0;
-        }
-        ind--;
-        num /= BASE;
+        result[index] = 1;
     }
-    return result;
+    else{
+        result[index] = 0;
+    }
+    index--;
+    num /= BASE;
+}
+return result;
 }
  
 char* convert_wierd4(char* str)
 {
     int r, k = BASE;
-    char temp, *wierdStr ="";
+    char* temp, wierdStr ="";
     int num = atoi(str);
     int tempNum = num;
     while(tempNum > 0)
     {
         if((tempNum % 10 ) == 0)
-            wierdStr = strcat(wierdStr, "a");
+            wierdStr = strcat(wierdStr, 'a');
         if((tempNum % 10 ) == 1)
-            wierdStr = strcat(wierdStr, "b");
+            wierdStr = strcat(wierdStr, 'b');
         if((tempNum % 10 ) == 2)
-            wierdStr = strcat(wierdStr, "c");
+            wierdStr = strcat(wierdStr, 'c');
         if((tempNum % 10 ) == 3)
-            wierdStr = strcat(wierdStr, "d");
+            wierdStr = strcat(wierdStr, 'd');
         tempNum /= 10;
     }
     /* reverse the string*/
@@ -566,22 +566,21 @@ void cleanArr(char* arr, int size){
 char* convertToBinary(char* inputNum)
 {
     int num = atoi(inputNum);
-    char* result[DECIMAL];
-    memset(result, '\0', sizeof(result));
-    int ind = 9;
+    char* result[DECIMAL] = {'\0'};
+    int index = 9;
     while(num > 0)
     {
         if(num % 2 != 0)
         {
-            result[ind] = '1';
+            result[index] = 1;
         }
         else{
-            result[ind] = '0';
+            result[index] = 0;
         }
-        ind--;
+        index--;
         num /= 2;
     }
-    return (char*)result;
+    return result;
 }
  
 int isEmpty(char* str){
@@ -599,25 +598,25 @@ int isEmpty(char* str){
  
 void insertToCode(SplitLine* p, int* r)
 {
-    int indx = 0, type = 0, regFlag = 0, NullFlag = 0, NumFlag=0, *row = r, tmpR = 1, s, savePlace;
-    char* temp, str, binary = (char)malloc(sizeof(char)*9);
+    int index = 0, type = 0, regFlag = 0, NullFlag = 0, NumFlag=0, row = r, tmpR = 1, s, savePlace;
+    char* temp, str, binary = (char*)malloc(sizeof(char)*9);
     SymbolTable* ptr;
     char* tempArr[3];
     temp = cmdToCode(p->opCode);
     strcat(Code[row], temp);       
-        while(row < MAX_MEMORY && p->vars[indx] != NULL)
+        while(row < MAX_MEMORY && p->vars[index] != NULL)
         {
-            type = typeAdress(p, indx);
+            type = typeAdress(p, index);
             switch(type)
             {
                 case IMMEDIATE_ADRESS:   strcat(Code[row], "00");  
-                                         s = atoi(strtok(p->vars[indx], "#-+"));
-                                         convertToBinary(s, binary);
+                                         s = atoi(strtok(p->vars[index], "#-+"));
+                                         converToBinary(s, binary);
                                          binary = (char*)realloc(binary, sizeof(binary)+2);
                                          strcat(binary, "00\0");                                                     
                                          strcat(Code[row+tmpR], binary);
                                          NumFlag = 1;   
-                                         indx++;
+                                         index++;
                                          tmpR++;
                                          free(binary);
                                          break;
@@ -626,9 +625,9 @@ void insertToCode(SplitLine* p, int* r)
                                         ptr = searchSymbol(symbList, p->label);
                                         if(ptr == NULL)
                                         {
-                                            if(isRegister(p->vars[indx])==1)
+                                            if(isRegister(p->vars[index])==1)
                                             {
-                                                strcat(Code[row+tmpR], getRegister(p->vars[indx]));/* dest register is in bytes 2-5*/
+                                                strcat(Code[row+tmpR], getRegister(p->vars[index]));/* dest register is in bytes 2-5*/
                                                 strcat(Code[row+tmpR], "0000");                     
                                             }
                                         }
@@ -640,12 +639,12 @@ void insertToCode(SplitLine* p, int* r)
                                         else{
                                             strcat(Code[row+tmpR], "01\0");
                                         }
-                                        indx++;
+                                        index++;
                                         tmpR++;
                                         break;
                      
                 case MAT_ADRESS:        strcat(Code[row], "10");
-                                        parseMat(p->vars[indx]);/* malloc*/
+                                        parseMat(p->vars[index]);/* malloc*/
                                         ptr = searchSymbol(symbList, tempArr[0]);
                                         temp = convertToBinary((char*)(ptr->addr));
                                         strcat(Code[row+tmpR], temp);
@@ -658,32 +657,32 @@ void insertToCode(SplitLine* p, int* r)
                                         else{
                                             strcat(Code[row+tmpR], "01\0");
                                         }
-                                        indx++;
+                                        index++;
                                         tmpR++;
                                         break;
  
                 case DIRECT_REG:        strcat(Code[row], "11");
                                         if(NullFlag == 1)
                                         {
-                                            strcat(Code[row+tmpR], getRegister(p->vars[indx]));
+                                            strcat(Code[row+tmpR], getRegister(p->vars[index]));
                                             strcat(Code[row+tmpR], "00\0");
                                         }
                                         else if(regFlag == 1)
                                         {
                                             tmpR--;
-                                            strcat(Code[row+tmpR], getRegister(p->vars[indx]));/* dest register is in bytes 2-5*/
-                                            strcat(Code[row+tmpR], getRegister(p->vars[inx-1]));/* source register is in bytes 6-9*/
+                                            strcat(Code[row+tmpR], getRegister(p->vars[index]));/* dest register is in bytes 2-5*/
+                                            strcat(Code[row+tmpR], getRegister(p->vars[index-1]));/* source register is in bytes 6-9*/
                                             strcat(Code[row+tmpR], "00\0");
                                         }
                                         if(NumFlag == 1)
                                         {
-                                            strcat(Code[row+tmpR], getRegister(p->vars[indx]));
+                                            strcat(Code[row+tmpR], getRegister(p->vars[index]));
                                             strcat(Code[row+tmpR], "0000");
                                             strcat(Code[row+tmpR], "00\0");
                                         }
  
                                         regFlag = 1;
-                                        indx++;
+                                        index++;
                                         tmpR++;
                                         break; 
  
@@ -693,9 +692,9 @@ void insertToCode(SplitLine* p, int* r)
                                         {
                                            tmpR--;
                                            strcat(Code[row+tmpR], "0000");
-                                           strcat(Code[row+tmpR], getRegister(p->vars[indx]));
+                                           strcat(Code[row+tmpR], getRegister(p->vars[index]));
                                         }  
-                                        indx++;
+                                        index++;
                                         tmpR++;                                               
             }
             p = p->next;
@@ -704,6 +703,34 @@ void insertToCode(SplitLine* p, int* r)
     r += tmpR;
 }
  
+ void mItoa(int n, char s[])
+ {
+     int i, sign;
+ 
+     if ((sign = n) < 0)  /* record sign */
+         n = -n;          /* make n positive */
+     i = 0;
+     do {       /* generate digits in reverse order */
+         s[i++] = n % 10 + '0';   /* get next digit */
+     } while ((n /= 10) > 0);     /* delete it */
+     if (sign < 0)
+         s[i++] = '-';
+     s[i] = '\0';
+     reverse(s);
+ }
+
+  void reverse(char s[])
+ {
+     int i, j;
+     char c;
+ 
+     for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
+         c = s[i];
+         s[i] = s[j];
+         s[j] = c;
+     }
+ }
+
 char* cmdToCode(char* currcmd)
 {
     char* cmdArr[MAX_CMD][MAX_CMD] = {

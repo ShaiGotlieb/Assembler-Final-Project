@@ -8,6 +8,7 @@
 #define DIRECT_REG 3
 #define MAX_CMD 16
 #define MAX_OPERAND 3
+#define MAX_LABEL 30
 /* run.h */
 #define OPERATIONS_NUM 16
 #define DATA 17
@@ -20,7 +21,11 @@
 #define MAX_MEMORY 256
 #define ONE_BYTE 10
 #define LABEL_SIZE 30
-   
+#define DECIMAL 10
+#define BASE 4   
+
+/* list.h */
+
 
 typedef enum {false, true} boolean;
  
@@ -61,6 +66,7 @@ char* fname;
 char* as;
 char* ob;
 char* ext;
+char* tempStr="";
 char* addBase4;
 char* address;
 char base4Code[6];
@@ -109,14 +115,14 @@ char r7[4] = "0111";
  
 int typeAdress(SplitLine*, int);
 int isNumber(const char*);
-int isOpenBracket(char*);
-int isLetter(char*);
+int isOpenBracket(char);
+int isLetter(char);
 int isRegister(char*);
 int isMatrix(char*);
 int validLabel(char*);
 int isOpenBracket(char*);
-int isCloseBracket(char*);
-void breakMat(void);
+int isCloseBracket(char);
+void breakMat(char*);
 int isMatrixInputValid(char*, int);
 int isMatrixObject(char*);
 int validateMatCommandObject(char*);
@@ -145,12 +151,12 @@ void readline(SplitLine*, char*);
 char* convertToBinary(char*);
 int validOpCode(char*);
 int validOperand(int, char*);
-void insertToDataT(char*[], int);
+void insertToDataT(char*[], int); /* */
 void copyBinarStr(char*, char*);
 char* convert_base4(char*);
 char* convert_wierd4(char*);
 char* convertToBinary(char*);
-int isEmpty(const char*);
+int isEmpty(char*);
 void insertToCode(SplitLine*, int*);
 char* cmdToCode(char*);
 void binaryToWierd4(char*, char*);

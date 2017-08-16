@@ -15,21 +15,21 @@ int main(int argc, char* argv[]){
             break;
         }
  
-        const char* object = strcat(argv[i], ".ob");
+        object = strcat(argv[i], ".ob");
         FILE* fas = fopen(object, "w");
         if(!fas){
             printf("Error: cannot open the file %s\n", object);
             break;
         }
          
-        const char* entry = strcat(argv[i], ".ent");
+        entry = strcat(argv[i], ".ent");
         FILE* fent = fopen(entry, "w");
         if(!fent){
             printf("Error: cannot open the file %s\n", entry);
             break;
         }
          
-        const char* extrn = strcat(argv[i], ".ext");
+        extrn = strcat(argv[i], ".ext");
         FILE* fext = fopen(extrn, "w");
         if(!f){
             printf("Error: cannot open the file %s\n", extrn);
@@ -386,7 +386,7 @@ int validOperand(int op, char* tmp){
     index = operkind(tmp);
     switch(op){
         case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 11:
-            if(index == 1 || index == 2 || index == 3)
+            if(indx == 1 || indx == 2 || indx == 3)
                     return 1;
             return 0;
         case 10: case 13:
@@ -704,9 +704,11 @@ void insertToCode(SplitLine* p, int* r)
  
 char* cmdToCode(char* currcmd)
 {
-    char* cmdArr[MAX_CMD][MAX_CMD] = { {"mov"}, {"cmp"}, {"add"}, {"sub"}, {"not"}, {"clr"}, {"lea"}, {"inc"}, {"dec"}, {"jmp"}, {"bne"}, {"red"}, {"prn"}, {"jsr"}, {"rts"}, {"stop"},
-                             {"0000"}, {"0001"}, {"0010"}, {"0011"}, {"0100"}, {"0101"}, {"0110"}, {"0111"}, {"1000"}, {"1001"}, {"1010"}, {"1011"}, {"1100"}, {"1101"}, {"1110"}, 
-                             {"1111"} };
+    char* cmdArr[MAX_CMD][MAX_CMD] = {
+     { "mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop" },
+     { "0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111", "1000", "1001", "1010", "1011", "1100", "1101", "1110", 
+       "1111" }    
+ };
  
     int i, j;
     char* tempStr = "";
@@ -718,12 +720,11 @@ char* cmdToCode(char* currcmd)
       tempStr = strcat(tempStr, cmdArr[i][j]); /* concatenate the binary "base 4" number of the right command to a temporary string*/
      }
     }
-    return &tempStr;
+    return tempStr;
 }
  
 void parseMat(char* mat){
     int i, j, k;
-    char* arr[3] = {"\0"};
     for(i = 0; i < strlen(mat); i++){
         if(mat[i] == '['){
             j++;
@@ -962,14 +963,14 @@ int isMatrix(char* word)
 /* isMatrix get a word and validate if it's a llegal matrix - return 1 if success*/
 int isMatrixObject(char* word)
 {
-    int i;
+    int i, firstNumber, secondNumber;
     if(isOpenBracket(word[i]) != 1 && isdigit(word[i+1]) == 1 )
     {
         printf("ERROR! Invalid declaration of Matrix Object - matrix format should be [positive number][positive number].\n");
         return 0;
     }
-    int firstNumber = 0;
-    int secondNumber = 0;
+    firstNumber = 0;
+    secondNumber = 0;
     i++;
 /*extracting the full number as int from the word string*/
     while (isdigit(word[i]) == 1)
@@ -999,7 +1000,7 @@ int isMatrixObject(char* word)
             return 0;
         }
         i++;
-        if (word[i] != NULL) 
+        if(word[i] != '\0')/* different from NULL*/
         {
             printf("ERROR! Invalid declaration of Matrix Object - matrix format should be [positive number][positive number].\n");
             return 0;
@@ -1011,13 +1012,11 @@ int isMatrixObject(char* word)
 int validateMatCommandObject(char* word)
 {
 /*split word by space*/
-    char *array[strlen(word)];
-    int NumberOfElements = 0;
+    char* array = (char*)malloc(strlen(word));
+    int NumberOfElements = 0, matrixSize, result;
     int i=0;
     array[i] = strtok(word," ");
-    int matrixSize;
-    int result;
-    while(array[i]!=NULL)
+    while(array[i]!= '\0')/* different from NULL('\0')*/
     {
         array[++i] = strtok(NULL," ");
     }
@@ -1051,12 +1050,11 @@ int isMatrixInputValid(char* word, int matrixSize)
 {
  
 /*split word by commas*/
-    char *array[matrixSize];
+    char* array = (char*)malloc(matrixSize);
     int i=0;
     int NumberOfElements = 0;
-    int value = 0;
     array[i] = strtok(word,",");
-    while(array[i]!=NULL)
+    while(array[i]!= '\0')
     {
         array[++i] = strtok(NULL,",");
     }
@@ -1072,12 +1070,12 @@ int isMatrixInputValid(char* word, int matrixSize)
  
 /*check if each element is a positive or negetive number*/
     i = 0;
-    while ( array[i] != NULL)
+    while ( array[i] != '\0')/* different from NULL*/
     {
 /*0 is a valid number but atoi returns 0 on error so we need to check it seperatly */
         if ( array[i] != '0' && atoi(array[i]) == 0) 
         {
-            printf("ERROR! Invalid declaration of Matrix elements. elements should be only numbers. failed on element [%s] \n", array[i]);
+            printf("ERROR! Invalid declaration of Matrix elements. elements should be only numbers. failed on element [%d] \n", array[i]);
             return 0;
         }            
         i++;
@@ -1276,7 +1274,7 @@ int memorySize(SplitLine* sl)
 {   
     int regFlag = 0;
 /* check if it's one of the commands*/
-    if(sl->opCode > MAX_CMD)
+    if(validOpCode(sl->opCode) > MAX_CMD)
     {
         return 0;
     }

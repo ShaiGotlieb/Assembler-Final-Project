@@ -45,7 +45,7 @@ typedef struct SymbolList
     struct SymbolTable* tail;
 }SymbolList;
 
-/*SplitLines hold the separate words of the line and validate some of them*/
+/*SplitLine hold the separate words of the line and validate some of them*/
 typedef struct SplitLine
 {
     char* label;
@@ -60,21 +60,24 @@ typedef struct SplitList
     struct SplitLine* tail;
 }SplitList;
 
-
+FILE* f;
+FILE* fas;
+FILE* fent;
+FILE* fext;
 int i, j;
-char* fname;
-char* as;
-char* ob;
-char* ext;
+char* object;
+char* entry;
+char* extrn;
 char* tempStr="";
-char* addBase4;
-char* address;
+char* addBase4 = NULL;
+char* address = NULL;
 char base4Code[6];
 char wierd4Code[6];
 char tmp[FOUR_BASE_SIZE];
 const char* object;
 const char* entry;
 const char* extrn;
+
 
 char* line;
 SplitList* sList;
@@ -87,7 +90,7 @@ int L, indx, r = 0;
 
 
 enum states{START, SPACE, COMM_ZERO, COMM_ONE, COMM_TWO_A, COMM_TWO_B,
-INST_TWO, INST_EXTERN, LABEL, MAKE, END};
+INST_TWO, INST, LABEL, MAKE, END};
 
 char* opCodes[OPSIZE] = {"rts", "stop", "not", "clr", "inc", "dec",
 "jmp", "bne", "red", "prn", "jsr",
@@ -141,8 +144,8 @@ int memorySize(SplitLine*);
 int isVar(char*);
 char* getRegister(char*);
 void parseMat(char*);
-void reverse(char);
-void mItoa(int n, char);
+void mItoa(int, char[]);
+void reverse(char[]);
 
 /* list.h */
 SplitList* makeSplitList();
@@ -157,7 +160,7 @@ SymbolTable* searchSymbol(SymbolTable*, char*);
 void readline(SplitLine*, char*);
 char* convertToBinary(char*);
 int validOpCode(char*);
-int validOperand(int, char*);
+int validOperand(int, SplitLine*);
 void insertToDataT(char*[], int); /* */
 void copyBinarStr(char*, char*);
 char* convert_base4(char*);

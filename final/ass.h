@@ -22,13 +22,13 @@
 #define ONE_BYTE 10
 #define LABEL_SIZE 30
 #define DECIMAL 10
-#define BASE 4   
+#define BASE 4
 
 /* list.h */
 
 
 typedef enum {false, true} boolean;
- 
+
 /*Symbol Table*/
 typedef struct SymbolTable
 {
@@ -38,13 +38,13 @@ typedef struct SymbolTable
     boolean ope;
     struct SymbolTable* next;
 }SymbolTable;
- 
+
 typedef struct SymbolList
 {
     struct SymbolTable* head;
     struct SymbolTable* tail;
 }SymbolList;
- 
+
 /*SplitLines hold the separate words of the line and validate some of them*/
 typedef struct SplitLine
 {
@@ -56,10 +56,10 @@ typedef struct SplitLine
 
 typedef struct SplitList
 {
-    struct SplitLines* head;
-    struct SplitLines* tail;
+    struct SplitLine* head;
+    struct SplitLine* tail;
 }SplitList;
- 
+
 
 int i, j;
 char* fname;
@@ -72,9 +72,9 @@ char* address;
 char base4Code[6];
 char wierd4Code[6];
 char tmp[FOUR_BASE_SIZE];
-const char* object; 
-const char* entry; 
-const char* extrn; 
+const char* object;
+const char* entry;
+const char* extrn;
 
 char* line;
 SplitList* sList;
@@ -84,27 +84,31 @@ SymbolList* symbList;
 SymbolTable* symbol;
 SymbolTable* sp;
 int L, indx, r = 0;
- 
 
-enum states{START, SPACE, COMM_ZERO, COMM_ONE, COMM_TWO_A, COMM_TWO_B, INST_TWO, INST_EXTERN, LABEL, MAKE, END};
- 
-char* opCodes[OPSIZE] = {"rts", "stop", "not", "clr", "inc", "dec", "jmp", "bne", "red", "prn", "jsr",
-                         "mov", "cmp", "add", "sub", "lea", ".data", ".string", ".mat", ".entry", ".extern"};
- 
- 
+
+enum states{START, SPACE, COMM_ZERO, COMM_ONE, COMM_TWO_A, COMM_TWO_B,
+INST_TWO, INST_EXTERN, LABEL, MAKE, END};
+
+char* opCodes[OPSIZE] = {"rts", "stop", "not", "clr", "inc", "dec",
+"jmp", "bne", "red", "prn", "jsr",
+                         "mov", "cmp", "add", "sub", "lea", ".data",
+".string", ".mat", ".entry", ".extern"};
+
+
 /*Data Table, Data runs with DC*/
 char DataT[MAX_MEMORY][ONE_BYTE];
- 
-/*Code Table, Binaric form of the code, receives the Data table at the end of the program, runs with IC*/
+
+/*Code Table, Binaric form of the code, receives the Data table at the
+end of the program, runs with IC*/
 char Code[MAX_MEMORY][ONE_BYTE];
- 
- 
+
+
 
 int IC, DC;
 char name[LABEL_SIZE];
 char R1[3] = "\0";
 char R2[3] = "\0";
- 
+
 
 char r0[4] = "0000";
 char r1[4] = "0001";
@@ -114,7 +118,7 @@ char r4[4] = "0100";
 char r5[4] = "0101";
 char r6[4] = "0110";
 char r7[4] = "0111";
- 
+
 int typeAdress(SplitLine*, int);
 int isNumber(const char*);
 int isOpenBracket(char);
@@ -130,14 +134,16 @@ int validateMatCommandObject(char*);
 int validData(char*);
 int checkConsecutiveSigns(char*);
 int checkConsecutiveCommas(char*);
-int validExtern(char*, SymbolList*);
-int validEntry(char*, SymbolList*);
+int validExtern(char*, SymbolTable*);
+int validEntry(char*, SymbolTable*);
 int validString(char*);
 int memorySize(SplitLine*);
 int isVar(char*);
 char* getRegister(char*);
 void parseMat(char*);
- 
+void reverse(char);
+void mItoa(int n, char);
+
 /* list.h */
 SplitList* makeSplitList();
 int isEmptyList(const SplitList*);
@@ -163,8 +169,7 @@ char* cmdToCode(char*);
 void binaryToWierd4(char*, char*);
 void cleanArr(char*, int);
 void parceMat(char*);
- 
+
 
 void firstRun(FILE*);
 void secondRun(const SplitList*, FILE*, FILE*);
- 

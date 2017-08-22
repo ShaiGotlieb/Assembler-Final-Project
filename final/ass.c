@@ -908,8 +908,8 @@ int isLetter(char* word)
     int i, size = strlen(word);
     
     for(i = 1; i < size; i++){
-        if(isalpha(word[0])){
-            continue;
+        if(!isalpha(word[0])){
+            return 0;
         }
         if(!isdigit(word[i]) && !isalpha(word[i])){
             return 0;
@@ -1243,6 +1243,12 @@ int isCloseBracket(char c)
 /* Function that breaks the words after a matrix*/
 void breakMat(char* word)
 {
+    tempStr = (char*)malloc(MAX_LINE);
+    if(tempStr == NULL)
+        {
+             printf("Unable to allocate memory!\n");
+             exit(1);
+        }
     while(word[i] != ']' && i <= strlen(word))
     {
         tempStr[j] = word[i];

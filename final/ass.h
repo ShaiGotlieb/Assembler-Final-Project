@@ -1,4 +1,6 @@
-#define toStr(x) #x
+#ifndef ASSEMBLER_HEADER_H
+#define ASSEMBLER_HEADER_H
+
 #define START_ADD 100
 #define FOUR_BASE_SIZE 5
 /* validate.h */
@@ -9,6 +11,7 @@
 #define MAX_CMD 16
 #define MAX_OPERAND 3
 #define MAX_LABEL 30
+#define REG_SIZE 2
 /* run.h */
 #define OPERATIONS_NUM 16
 #define DATA 17
@@ -19,6 +22,7 @@
 /* utils.h */
 #define OPSIZE 21
 #define MAX_MEMORY 256
+#define MAX_LINE 81
 #define ONE_BYTE 10
 #define LABEL_SIZE 30
 #define DECIMAL 10
@@ -30,35 +34,25 @@
 typedef enum {false, true} boolean;
 
 /*Symbol Table*/
-typedef struct SymbolTable
+typedef struct SymbolT
 {
-    char* label;
+    char label[30];
     int addr;
     boolean ext;
     boolean ope;
-    struct SymbolTable* next;
-}SymbolTable;
+    struct SymbolT* next;
+}SymbolT;
 
-typedef struct SymbolList
-{
-    struct SymbolTable* head;
-    struct SymbolTable* tail;
-}SymbolList;
 
 /*SplitLine hold the separate words of the line and validate some of them*/
 typedef struct SplitLine
 {
-    char* label;
+    char label[30];
     char* opCode;
     char* vars[MAX_MEMORY];
     struct SplitLine* next;
 }SplitLine;
 
-typedef struct SplitList
-{
-    struct SplitLine* head;
-    struct SplitLine* tail;
-}SplitList;
 
 FILE* f;
 FILE* fas;
@@ -74,35 +68,24 @@ char* address = NULL;
 char base4Code[6];
 char wierd4Code[6];
 char tmp[FOUR_BASE_SIZE];
-const char* object;
-const char* entry;
-const char* extrn;
-
 
 char* line;
-SplitList* sList;
+SplitLine* sHead;
 SplitLine* sLine;
-SplitLine* p;
-SymbolList* symbList;
-SymbolTable* symbol;
-SymbolTable* sp;
+SymbolT* syHead;
+SymbolT* symbol;
+SymbolT* sp;
 int L, indx, r = 0;
 
 
-enum states{START, SPACE, COMM_ZERO, COMM_ONE, COMM_TWO_A, COMM_TWO_B,
-INST_TWO, INST, LABEL, MAKE, END};
 
-char* opCodes[OPSIZE] = {"rts", "stop", "not", "clr", "inc", "dec",
-"jmp", "bne", "red", "prn", "jsr",
-                         "mov", "cmp", "add", "sub", "lea", ".data",
-".string", ".mat", ".entry", ".extern"};
+enum states{START, SPACE, COMM_ZERO, COMM_ONE, COMM_TWO_A, COMM_TWO_B, INST_TWO, INST, LABEL, MAKE, END};
 
 
 /*Data Table, Data runs with DC*/
 char DataT[MAX_MEMORY][ONE_BYTE];
 
-/*Code Table, Binaric form of the code, receives the Data table at the
-end of the program, runs with IC*/
+/*Code Table, Binaric form of the code, receives the Data table at the end of the program, runs with IC*/
 char Code[MAX_MEMORY][ONE_BYTE];
 
 
@@ -122,57 +105,134 @@ char r5[4] = "0101";
 char r6[4] = "0110";
 char r7[4] = "0111";
 
+
+/* firstRun: Runs through the file for the first time.
+   This method will read a file and call other fuctions in order to parse the file's lines.
+   FirstRun will validate words, create list, parse each line and insert data to the right data types.*/ 
+SplitLine* firstRun(FILE*, SplitLine*);
+/* secondRun: Runs through the file for the second time.
+   This method will read a file and call other fuctions in order to parse and finish the program.
+   secondRun will create the right tables in order to insert them into the right files.
+   It will also call other functions which will convert the code to the right code as mentioned in the instructions*/ 
+void secondRun(SplitLine*, FILE*, FILE*);
+int countList(SplitLine* curr);
+/* typeAdress: getting a structure wich contains data from line that already has been parsed.
+    it gets the index of the "vars" array in order to determain the kind of the type address.
+    It returns 0 for immidiate address, 1 for direct address, 2 for matrix address, 3 for register address.*/ 
 int typeAdress(SplitLine*, int);
+/* isNumber: Function that determain if a single char is a number. Number can start with '#' sign, '-' or '+'.
+    returns 1 if true and 0 if false.*/
 int isNumber(const char*);
+/* isOpenBracket: Helping method that decides if a specific character is an open square bracket: '['
+    returns 1 if true and 0 if false*/
 int isOpenBracket(char);
-int isLetter(char);
+/* isLetter: Helping method that decides if a specific character is a lligal character.
+    returns 1 if true and 0 if false*/
+int isLetter(char*);
+/* isRegister: Function that check if a given word is a lligal register: r0 - r7
+    return 1 if true and 0 if false*/
 int isRegister(char*);
+/* isMatrix: Function that check if a given word is a lligal matrix: starts has two pairs of square bracket '[]'.
+    inside should contain register. return 1 if true and 0 if false */
 int isMatrix(char*);
+/* validLabel: check if a label is lligal label as asked in the instructions.
+    return 1 if true and 0 if false*/
 int validLabel(char*);
+/* isCloseBracket: Helping method that decides if a specific character is a close square bracket: ']'
+    returns 1 if true and 0 if false*/
 int isCloseBracket(char);
+/* breakMat: Method that will get a word and save the name of the matrix before the brasckets*/
 void breakMat(char*);
+/* isMatrixInputValid: function that validate the matrix lligalization. 
+    return 1 if matrix is lligal and 0 if illigal */
 int isMatrixInputValid(char*, int);
+/* isMatrixObject: check valditation of a matrix after '.mat' appears. return the size of the matrix*/
 int isMatrixObject(char*);
+/* validateMatCommandObject: function that call the other functions in order to validate the full matrix line.
+    return the size of the matrix after validation. Validate the elemnts of the matrix as well.
+    if faild - will print error message*/
 int validateMatCommandObject(char*);
+/* validData: validate the number and the lligalization of elements in array 'vars' that located inside the structure
+    will return the size of elements in the array (data)*/
 int validData(char*);
+/* checkConsecutiveSigns: Method that check if consecutive signs: '-' , '+'  appears in a line
+    return 1 if consecutive signs appears and 0 if not*/
 int checkConsecutiveSigns(char*);
+/* checkConsecutiveCommas: Method that check if consecutive commas: ',,' appears in a line
+    return 1 if consecutive commas appears and 0 if not*/
 int checkConsecutiveCommas(char*);
-int validExtern(char*, SymbolTable*);
-int validEntry(char*, SymbolTable*);
+/* validExtern: method that check the validation of variable after '.extern'
+    name of a variable can't appear twice. return 1 if true and 0 if false*/
+int validExtern(char*, SymbolT*);
+/* validEntry: method that check the validation of variable after '.entry'
+    name of a variable must exist in symbol list. return 1 if true and 0 if false*/
+int validEntry(char*, SymbolT*);
+/* validString: method that check the validation of string after '.string'
+    return size of a string in order to increase 'DC' and 0 if false*/
 int validString(char*);
+/* memorySize: function that check how many memory spaces should be added to IC (by L).
+    return the size of the memory should be opened*/
 int memorySize(SplitLine*);
+/* isVar: helping method that check the correction of a word in array 'vars'*/
 int isVar(char*);
+/* getRegister: function that get a register name and return the code for the right register: 0000 - 1111*/
 char* getRegister(char*);
+/* parseMat: function that parse the matrix it gets and seperate the name of the matrix, the variables inside.*/
 void parseMat(char*);
+/* mItoa: function that change the type of a variable from int to char.*/
 void mItoa(int, char[]);
+/* reverse: helping function that get a word and reverse it*/
 void reverse(char[]);
 
 /* list.h */
-SplitList* makeSplitList();
-int isEmptyList(const SplitList*);
-void insertLineToTail(SplitList*, SplitLine*);
-void freeList(SplitList*);
-SymbolList* makeSymbolList();
-int isEmptysList(const SymbolList*);
-void insertSymbolToTail(SymbolList*, SymbolTable*);
-SymbolTable* searchSymbol(SymbolTable*, char*);
+/* isEmptyList: function that check if a given list is empty
+    return 1 if empty and 0 if not empty*/
+int isEmptyList(SplitLine*);
+/* insertLineToTail: function that adding a structure to the end of the list*/
+SplitLine* insertLineToTail(SplitLine*, SplitLine*);
+/* freeList: function that realease a list from a memory*/
+void freeList(SplitLine*);
 
-void readline(SplitLine*, char*);
+void freeSList(SymbolT*);
+/* isEmptyList: function that check if a given list is empty (symbol list)
+    return 1 if empty and 0 if not empty*/
+int isEmptysList(SymbolT*);
+/* insertSymbolToTail: function that adding a symbol structure to the end of the list*/
+SymbolT* insertSymbolToTail(SymbolT*, SymbolT*);
+/* searchSymbol: is getting a symbol table and a word in order to search if it exist
+    if exist it will return a pointer to the 'object'*/
+SymbolT* searchSymbol(SymbolT*, char*);
+
+SplitLine* newSL();
+SymbolT* newSym();
+
+/* readline: function that getting a line in order to read it and parse it.*/
+SplitLine* readline(SplitLine*, char*);
+/* convertToBinary: method that getting a string and convert it to binary as characters and return it*/
 char* convertToBinary(char*);
+/* validOpCode: function that check the validation of the command and return the number of the command*/
 int validOpCode(char*);
+/* validOperand: function that check the correction of the operands using wtich cases.
+    if the operand exist - return 1 if not it will return 0*/
 int validOperand(int, SplitLine*);
-void insertToDataT(char*[], int); /* */
-void copyBinarStr(char*, char*);
+/* insertToDataT: function that adding data to the right table*/
+void insertToDataT(char**, int);
+/* convert_base4: method that gets a string and converts it to base 4 and return the string */
 char* convert_base4(char*);
+/* convert_wierd4: method that gets a string and converts it to 'wierd base 4': 'a', 'b', 'c', 'd' and return the string */
 char* convert_wierd4(char*);
+/* convertToBinary: method that get a string and convert it to binary. returns the result as a char type*/
 char* convertToBinary(char*);
+/* isEmpty: function that decide if a given strng is empty or not (could be empty line)
+    return 1 if empty and 0 if not empty*/
 int isEmpty(char*);
+/* insertToCode: function that get the right structure and insert it to the array 'Code' according to the right row*/
 void insertToCode(SplitLine*, int*);
+/* cmdToCode: function that gets the command name and return the number it represents*/
 char* cmdToCode(char*);
+/* binaryToWierd4: convert a string of characters to 'wierd 4 base'*/
 void binaryToWierd4(char*, char*);
+/* cleanArr: method that designed to clear a given array*/
 void cleanArr(char*, int);
-void parceMat(char*);
 
-
-void firstRun(FILE*);
-void secondRun(const SplitList*, FILE*, FILE*);
+#endif

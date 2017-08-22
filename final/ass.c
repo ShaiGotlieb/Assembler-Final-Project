@@ -49,6 +49,12 @@ int main(int argc, char* argv[]){
         sHead = NULL;
         sHead = firstRun(f, sHead);
         secondRun(sHead, fent, fext);
+        addBase4 = (char*)malloc(MAX_LINE);
+        if(addBase4 == NULL)
+        {
+             printf("Unable to allocate memory for new node\n");
+             exit(1);
+        }
         for(j = 0; j < IC; j++){
             mItoa((START_ADD + j), addBase4);
             convert_base4(addBase4);
@@ -543,9 +549,10 @@ char* convert_base4(char* inputNum)
 char* convert_wierd4(char* str)
 {
     int r, k = BASE;
-    char temp, *wierdStr ="";
+    char temp, *wierdStr;
     int num = atoi(str);
     int tempNum = num;
+    wierdStr = (char*)malloc(MAX_LINE);
     while(tempNum > 0)
     {
         if((tempNum % 10 ) == 0)
@@ -878,10 +885,10 @@ int typeAdress(SplitLine* sl, int index)
     return 4;
 }
 
-int isNumber(const char* str)
+int isNumber(char* str)
 {
     char c;
-    if (*str) {
+    if (str != NULL) {
 /* minus and plus is  allowed, number must start with # */
         if((*str == '-' || *str == '+') && *str == '#')
             str++;
@@ -896,14 +903,15 @@ int isNumber(const char* str)
 }
 
 /* returns ture if the specifed char is an english letter a-z or A-Z */
-int isLetter(char* c)
+int isLetter(char* word)
 {
-    int i, size = strlen(c);
-    for(i = 0; i < size; i++){
-        if(isalpha(c[0])){
+    int i, size = strlen(word);
+    
+    for(i = 1; i < size; i++){
+        if(isalpha(word[0])){
             continue;
         }
-        if(!isdigit(c[i])){
+        if(!isdigit(word[i]) && !isalpha(word[i])){
             return 0;
         }
         else{
@@ -1420,8 +1428,7 @@ int memorySize(SplitLine* sl)
         /* run through the array and increase L by the correct type adress*/
         for(i = 0; i < strlen(*(sl->vars)); i++)
         {
-            if(typeAdress(sl, i) == IMMEDIATE_ADRESS || typeAdress(sl,
-i) == DIRECT_ADRESS || (isVar(sl->vars[i]) == 1))
+            if(typeAdress(sl, i) == IMMEDIATE_ADRESS || typeAdress(sl, i) == DIRECT_ADRESS || (isVar(sl->vars[i]) == 1))
             {
                 L++;
             }

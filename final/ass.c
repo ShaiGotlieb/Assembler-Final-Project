@@ -1,3 +1,25 @@
+/* ======================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------------------------------
+WELCOME!
+PROGRAM DEVLOPED BY: Leandro Zlotnik & Shai Gotlieb
+FOR: THE OPEN UNIVERSITY OF ISRAEL
+CLASS: Programming in C Lab #20465
+DATE: 20/08/2017
+ABOUT:
+        The following program was designed for special requierments of
+        The Open University of Israel.
+        This is an assembler program that will convert 'special' assembly
+        language to 'wierd base 4' machine language.
+        In order to use the program enter the following code into the terminal:
+
+./<NAME OF EXE FILE> <NAME OF FILE NEEDED TO TRANSLATE>
+
+Enjoy!
+-----------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================================================= 
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1492,7 +1514,6 @@ SplitList* makeSplitList(){
     splitList->head = (SplitLine*)malloc(sizeof(SplitLine));
     return splitList;
 }
-
 int isEmptyList(SplitList* lst){
     return lst->head == NULL;
 }
@@ -1622,4 +1643,3 @@ SymbolT* searchSymbol(SymbolT* head, char* symbol){
     }
     return NULL;
 }
-

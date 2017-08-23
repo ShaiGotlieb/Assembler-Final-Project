@@ -30,7 +30,6 @@
 
 /* list.h */
 
-
 typedef enum {false, true} boolean;
 
 /*Symbol Table*/
@@ -75,27 +74,12 @@ SplitLine* sLine;
 SymbolT* syHead;
 SymbolT* symbol;
 SymbolT* sp;
+
 int L, indx, r = 0;
-
-
-
-enum states{START, SPACE, COMM_ZERO, COMM_ONE, COMM_TWO_A, COMM_TWO_B, INST_TWO, INST, LABEL, MAKE, END};
-
-
-/*Data Table, Data runs with DC*/
-char DataT[MAX_MEMORY][ONE_BYTE];
-
-/*Code Table, Binaric form of the code, receives the Data table at the end of the program, runs with IC*/
-char Code[MAX_MEMORY][ONE_BYTE];
-
-
-
 int IC, DC;
 char name[LABEL_SIZE];
 char R1[3] = "\0";
 char R2[3] = "\0";
-
-
 char r0[4] = "0000";
 char r1[4] = "0001";
 char r2[4] = "0010";
@@ -105,139 +89,383 @@ char r5[4] = "0101";
 char r6[4] = "0110";
 char r7[4] = "0111";
 
+enum states{START, SPACE, COMM_ZERO, COMM_ONE, COMM_TWO_A, COMM_TWO_B, INST_TWO, INST, LABEL, MAKE, END};
 
-/* firstRun: Runs through the file for the first time.
+/*Data Table, Data runs with DC*/
+char DataT[MAX_MEMORY][ONE_BYTE];
+
+/*Code Table, Binaric form of the code, receives the Data table at the end of the program, runs with IC*/
+char Code[MAX_MEMORY][ONE_BYTE];
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+firstRun: Runs through the file for the first time.
    This method will read a file and call other fuctions in order to parse the file's lines.
-   FirstRun will validate words, create list, parse each line and insert data to the right data types.*/ 
+   FirstRun will validate words, create list, parse each line and insert data to the right data types.
+   ========================================================================================================= */ 
 SplitLine* firstRun(FILE*, SplitLine*);
-/* secondRun: Runs through the file for the second time.
+
+/*  ==========================================================================================================
+------------------------------------------------------------------------------------------------------------- 
+secondRun: Runs through the file for the second time.
    This method will read a file and call other fuctions in order to parse and finish the program.
    secondRun will create the right tables in order to insert them into the right files.
-   It will also call other functions which will convert the code to the right code as mentioned in the instructions*/ 
+   It will also call other functions which will convert the code to the right code as mentioned in the instructions
+   ========================================================================================================== */ 
 void secondRun(SplitLine*, FILE*, FILE*);
-int countList(SplitLine* curr);
-/* typeAdress: getting a structure wich contains data from line that already has been parsed.
+
+/* ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+typeAdress: getting a structure wich contains data from line that already has been parsed.
     it gets the index of the "vars" array in order to determain the kind of the type address.
-    It returns 0 for immidiate address, 1 for direct address, 2 for matrix address, 3 for register address.*/ 
+    It returns 0 for immidiate address, 1 for direct address, 2 for matrix address, 3 for register address. 
+-------------------------------------------------------------------------------------------------------------
+    ========================================================================================================== */ 
 int typeAdress(SplitLine*, int);
-/* isNumber: Function that determain if a single char is a number. Number can start with '#' sign, '-' or '+'.
-    returns 1 if true and 0 if false.*/
+
+/*  ==========================================================================================================
+------------------------------------------------------------------------------------------------------------- 
+isNumber: Function that determain if a single char is a number. Number can start with '#' sign, '-' or '+'.
+    returns 1 if true and 0 if false.
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isNumber(char*);
-/* isOpenBracket: Helping method that decides if a specific character is an open square bracket: '['
-    returns 1 if true and 0 if false*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+isOpenBracket: Helping method that decides if a specific character is an open square bracket: '['
+    returns 1 if true and 0 if false
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isOpenBracket(char);
-/* isLetter: Helping method that decides if a specific character is a lligal character.
-    returns 1 if true and 0 if false*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+ isLetter: Helping method that decides if a specific character is a lligal character.
+    returns 1 if true and 0 if false
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isLetter(char*);
-/* isRegister: Function that check if a given word is a lligal register: r0 - r7
-    return 1 if true and 0 if false*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+ isRegister: Function that check if a given word is a lligal register: r0 - r7
+    return 1 if true and 0 if false
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isRegister(char*);
-/* isMatrix: Function that check if a given word is a lligal matrix: starts has two pairs of square bracket '[]'.
-    inside should contain register. return 1 if true and 0 if false */
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+isMatrix: Function that check if a given word is a lligal matrix: starts has two pairs of square bracket '[]'.
+    inside should contain register. return 1 if true and 0 if false 
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isMatrix(char*);
-/* validLabel: check if a label is lligal label as asked in the instructions.
-    return 1 if true and 0 if false*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+validLabel: check if a label is lligal label as asked in the instructions.
+    return 1 if true and 0 if false
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int validLabel(char*);
-/* isCloseBracket: Helping method that decides if a specific character is a close square bracket: ']'
-    returns 1 if true and 0 if false*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+isCloseBracket: Helping method that decides if a specific character is a close square bracket: ']'
+    returns 1 if true and 0 if false
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isCloseBracket(char);
-/* breakMat: Method that will get a word and save the name of the matrix before the brasckets*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+breakMat: Method that will get a word and save the name of the matrix before the brasckets
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 void breakMat(char*);
-/* isMatrixInputValid: function that validate the matrix lligalization. 
-    return 1 if matrix is lligal and 0 if illigal */
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+isMatrixInputValid: function that validate the matrix lligalization. 
+    return 1 if matrix is lligal and 0 if illigal 
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isMatrixInputValid(char*, int);
-/* isMatrixObject: check valditation of a matrix after '.mat' appears. return the size of the matrix*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+isMatrixObject: check valditation of a matrix after '.mat' appears. return the size of the matrix
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isMatrixObject(char*);
-/* validateMatCommandObject: function that call the other functions in order to validate the full matrix line.
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+validateMatCommandObject: function that call the other functions in order to validate the full matrix line.
     return the size of the matrix after validation. Validate the elemnts of the matrix as well.
-    if faild - will print error message*/
+    if faild - will print error message
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int validateMatCommandObject(char*);
-/* validData: validate the number and the lligalization of elements in array 'vars' that located inside the structure
-    will return the size of elements in the array (data)*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+validData: validate the number and the lligalization of elements in array 'vars' that located inside the structure
+    will return the size of elements in the array (data)
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int validData(char*);
-/* checkConsecutiveSigns: Method that check if consecutive signs: '-' , '+'  appears in a line
-    return 1 if consecutive signs appears and 0 if not*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+checkConsecutiveSigns: Method that check if consecutive signs: '-' , '+'  appears in a line
+    return 1 if consecutive signs appears and 0 if not
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int checkConsecutiveSigns(char*);
-/* checkConsecutiveCommas: Method that check if consecutive commas: ',,' appears in a line
-    return 1 if consecutive commas appears and 0 if not*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+checkConsecutiveCommas: Method that check if consecutive commas: ',,' appears in a line
+    return 1 if consecutive commas appears and 0 if not
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int checkConsecutiveCommas(char*);
-/* validExtern: method that check the validation of variable after '.extern'
-    name of a variable can't appear twice. return 1 if true and 0 if false*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+validExtern: method that check the validation of variable after '.extern'
+    name of a variable can't appear twice. return 1 if true and 0 if false
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int validExtern(char*, SymbolT*);
-/* validEntry: method that check the validation of variable after '.entry'
-    name of a variable must exist in symbol list. return 1 if true and 0 if false*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+validEntry: method that check the validation of variable after '.entry'
+    name of a variable must exist in symbol list. return 1 if true and 0 if false
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int validEntry(char*, SymbolT*);
-/* validString: method that check the validation of string after '.string'
-    return size of a string in order to increase 'DC' and 0 if false*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+validString: method that check the validation of string after '.string'
+    return size of a string in order to increase 'DC' and 0 if false
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int validString(char*);
-/* memorySize: function that check how many memory spaces should be added to IC (by L).
-    return the size of the memory should be opened*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+memorySize: function that check how many memory spaces should be added to IC (by L).
+    return the size of the memory should be opened
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int memorySize(SplitLine*);
-/* isVar: helping method that check the correction of a word in array 'vars'*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+isVar: helping method that check the correction of a word in array 'vars'
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isVar(char*);
-/* getRegister: function that get a register name and return the code for the right register: 0000 - 1111*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+getRegister: function that get a register name and return the code for the right register: 0000 - 1111
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 char* getRegister(char*);
-/* parseMat: function that parse the matrix it gets and seperate the name of the matrix, the variables inside.*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+parseMat: function that parse the matrix it gets and seperate the name of the matrix, the variables inside.
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 void parseMat(char*);
-/* mItoa: function that change the type of a variable from int to char.*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+mItoa: function that change the type of a variable from int to char.
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 void mItoa(int, char[]);
-/* reverse: helping function that get a word and reverse it*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+reverse: helping function that get a word and reverse it
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 void reverse(char[]);
 
 /* list.h */
-/* isEmptyList: function that check if a given list is empty
-    return 1 if empty and 0 if not empty*/
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+isEmptyList: function that check if a given list is empty
+    return 1 if empty and 0 if not empty
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isEmptyList(SplitLine*);
-/* insertLineToTail: function that adding a structure to the end of the list*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+insertLineToTail: function that adding a structure to the end of the list
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 SplitLine* insertLineToTail(SplitLine*, SplitLine*);
-/* freeList: function that realease a list from a memory*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+freeList: function that realease a list from a memory
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 void freeList(SplitLine*);
 
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+freeList: function that realease a symbol list from a memory
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 void freeSList(SymbolT*);
-/* isEmptyList: function that check if a given list is empty (symbol list)
-    return 1 if empty and 0 if not empty*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+isEmptyList: function that check if a given list is empty (symbol list)
+    return 1 if empty and 0 if not empty
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isEmptysList(SymbolT*);
-/* insertSymbolToTail: function that adding a symbol structure to the end of the list*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+insertSymbolToTail: function that adding a symbol structure to the end of the list
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 SymbolT* insertSymbolToTail(SymbolT*, SymbolT*);
-/* searchSymbol: is getting a symbol table and a word in order to search if it exist
-    if exist it will return a pointer to the 'object'*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+countList: helping method that count the list in order to see how many nodes inside. Return the number of nodes
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
+int countList(SplitLine* curr);
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+searchSymbol: is getting a symbol table and a word in order to search if it exist
+    if exist it will return a pointer to the 'object'
+    -------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 SymbolT* searchSymbol(SymbolT*, char*);
 
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+newSL: function that create a new SplotLine structure node
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 SplitLine* newSL();
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+SymbolT: function that create new symbol table
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 SymbolT* newSym();
 
-/* readline: function that getting a line in order to read it and parse it.*/
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+readline: function that getting a line in order to read it and parse it.
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 SplitLine* readline(SplitLine*, char*);
-/* convertToBinary: method that getting a string and convert it to binary as characters and return it*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+convertToBinary: method that getting a string and convert it to binary as characters and return it
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 char* convertToBinary(char*);
-/* validOpCode: function that check the validation of the command and return the number of the command*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+validOpCode: function that check the validation of the command and return the number of the command
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int validOpCode(char*);
-/* validOperand: function that check the correction of the operands using wtich cases.
-    if the operand exist - return 1 if not it will return 0*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+validOperand: function that check the correction of the operands using wtich cases.
+    if the operand exist - return 1 if not it will return 0
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int validOperand(int, SplitLine*);
-/* insertToDataT: function that adding data to the right table*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+insertToDataT: function that adding data to the right table
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 void insertToDataT(char**, int);
-/* convert_base4: method that gets a string and converts it to base 4 and return the string */
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+convert_base4: method that gets a string and converts it to base 4 and return the string 
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 char* convert_base4(char*);
-/* convert_wierd4: method that gets a string and converts it to 'wierd base 4': 'a', 'b', 'c', 'd' and return the string */
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+convert_wierd4: method that gets a string and converts it to 'wierd base 4': 'a', 'b', 'c', 'd' and return the string 
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 char* convert_wierd4(char*);
-/* convertToBinary: method that get a string and convert it to binary. returns the result as a char type*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+convertToBinary: method that get a string and convert it to binary. returns the result as a char type
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 char* convertToBinary(char*);
-/* isEmpty: function that decide if a given strng is empty or not (could be empty line)
-    return 1 if empty and 0 if not empty*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+isEmpty: function that decide if a given strng is empty or not (could be empty line)
+    return 1 if empty and 0 if not empty
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 int isEmpty(char*);
-/* insertToCode: function that get the right structure and insert it to the array 'Code' according to the right row*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+insertToCode: function that get the right structure and insert it to the array 'Code' according to the right row
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 void insertToCode(SplitLine*, int*);
-/* cmdToCode: function that gets the command name and return the number it represents*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+cmdToCode: function that gets the command name and return the number it represents
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 char* cmdToCode(char*);
-/* binaryToWierd4: convert a string of characters to 'wierd 4 base'*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+binaryToWierd4: convert a string of characters to 'wierd 4 base'
+-------------------------------------------------------------------------------------------------------------
+==============================================================================================================*/
 void binaryToWierd4(char*, char*);
-/* cleanArr: method that designed to clear a given array*/
+
+/*  ==========================================================================================================
+-------------------------------------------------------------------------------------------------------------
+cleanArr: method that designed to clear a given array
+-------------------------------------------------------------------------------------------------------------
+============================================================================================================== */
 void cleanArr(char*, int);
-
-
-
-
-
 
 #endif
